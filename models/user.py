@@ -15,3 +15,4 @@ class User(BaseModel):
             self.errors.append('Username has been registered. Please try another.')
         elif duplicate_email and not duplicate_email.id == self.id:
             self.errors.append('Email has been registered. Please try another.')
+

@@ -26,9 +26,22 @@ def create():
         return jsonify(status="failed", message=errors)
 
 # [R] - Read user details
-@users_api_blueprint.route('/me/', methods=['GET'])
+@users_api_blueprint.route('/me', methods=['GET'])
 def show_user():
+    auth_header = request.headers.get('Authorization')
 
+    if auth_header:
+        token = auth_header.split(" ")[1]
+    else:
+        return jsonify(status="failed", message="No authorization header found.")
+
+    user_id = decode_auth_token(token)
+    user = User.get(User.id == int(user_id))
+
+    if user:
+        return jsonify(id=str(user.id), username=user.username, email=user.email)
+    else:
+        return jsonify(status="failed", message="Authentication failed")
 
 # [U] - Update user details
 
