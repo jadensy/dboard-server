@@ -22,8 +22,7 @@ def create():
         user_data = {"id": user.id, "username": user.username, "email": user.email}
         return jsonify(status="success", message=f"Account successfully created for {username}.", auth_token=token.decode(), user=user_data)
     else:
-        errors = user.errors
-        return jsonify(status="failed", message=errors)
+        return jsonify(status="failed", message=user.errors)
 
 # [R] - Read user details
 @users_api_blueprint.route('/me', methods=['GET'])
@@ -44,7 +43,30 @@ def show_user():
         return jsonify(status="failed", message="Authentication failed")
 
 # [U] - Update user details
+@users_api_blueprint.route('/me', methods=['PUT'])
+def update_user():
+    auth_header = request.headers.get('Authorization')
 
+    if auth_header:
+        token = auth_header.split(" ")[1]
+    else:
+        return jsonify(status="failed", message="No authorization header found.")
 
+    user_id = decode_auth_token(token)
+    user = User.get(User.id == int(user_id))
+    put_data = request.get_json()
+
+    if user:
+        if put_data['password']:
+            user.password = generate_password_hash(put_data['password'])
+
+        user.username = put_data['username']
+
+        user_data = {"id": user.id, "username": user.username, "email": user.email}
+
+        if user.save():
+            return jsonify(status="success", message="Profile successfully updated.", user=user_data)
+        else:
+            return jsonify(status="failed", message=user.errors)
 
 # [D] - Delete user account
