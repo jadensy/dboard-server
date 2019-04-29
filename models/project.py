@@ -1,4 +1,5 @@
 from models.base_model import BaseModel
+from models.client import Client
 import peewee as pw
 
 class Project(BaseModel):
@@ -7,4 +8,4 @@ class Project(BaseModel):
     client_id = pw.ForeignKeyField(Client, backref='projects')
     date = pw.DateField()
     currency = pw.CharField()
-    total = pw.DecimalField()
+    total = pw.DecimalField(decimal_places=2)

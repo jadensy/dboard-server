@@ -12,4 +12,3 @@ class Client(BaseModel):
 
         if duplicate_name and not duplicate_name.id == self.id:
             self.errors.append('Client already exists in system.')
-
