@@ -1,5 +1,6 @@
 from flask import Blueprint, jsonify, make_response, request
 from models.user import User
+from helpers import encode_auth_token, decode_auth_token
 from werkzeug.security import generate_password_hash
 
 users_api_blueprint = Blueprint('users_api',
@@ -9,21 +10,28 @@ users_api_blueprint = Blueprint('users_api',
 # [C] - Create user
 @users_api_blueprint.route('/', methods=['POST'])
 def create():
-    request_data = request.get_json()
-    username = request_data['username']
-    email = request_data['email']
-    password_hash = generate_password_hash(request_data['password'])
+    post_data = request.get_json()
+    username = post_data['username']
+    email = post_data['email']
+    password_hash = generate_password_hash(post_data['password'])
 
     user = User(username=username, email=email, password=password_hash)
+
     if user.save():
-        return jsonify(status="success", message=f"Account successfully created for {username}.")
-        # add JWT
+        token = encode_auth_token(user)
+        user_data = {"id": user.id, "username": user.username, "email": user.email}
+        return jsonify(status="success", message=f"Account successfully created for {username}.", auth_token=token.decode(), user=user_data)
     else:
         errors = user.errors
         return jsonify(status="failed", message=errors)
 
-@users_api_blueprint.route('/', methods=['GET'])
-def index():
-    return "USERS API"
+# [R] - Read user details
+@users_api_blueprint.route('/me/', methods=['GET'])
+def show_user():
 
 
+# [U] - Update user details
+
+
+
+# [D] - Delete user account
