@@ -22,8 +22,8 @@ def create():
     else:
         return jsonify(status="failed", message=client.errors)
 
-@clients_api_blueprint.route('/list', methods=['GET'])
-def list_clients():
+@clients_api_blueprint.route('/index', methods=['GET'])
+def index():
     auth_header = request.headers.get('Authorization')
 
     if auth_header:
