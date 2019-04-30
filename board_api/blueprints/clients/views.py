@@ -2,7 +2,6 @@ from flask import Blueprint, jsonify, request
 from models.user import User
 from models.client import Client
 from helpers import encode_auth_token, decode_auth_token
-from werkzeug.security import check_password_hash
 
 clients_api_blueprint = Blueprint('clients_api',
                                    __name__,
