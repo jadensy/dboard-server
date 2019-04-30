@@ -8,13 +8,6 @@ projects_api_blueprint = Blueprint('projects_api',
                                   __name__,
                                   template_folder='templates')
 
-#    name = pw.CharField()
-#    type = pw.CharField()
-#    client_id = pw.ForeignKeyField(Client, backref='projects')
-#    date = pw.DateField()
-#    currency = pw.CharField()
-#    total = pw.DecimalField(decimal_places=2)
-
 @projects_api_blueprint.route('/', methods=['POST'])
 def create():
     post_data = request.get_json()
@@ -48,9 +41,39 @@ def create():
     else:
         return jsonify(status="failed", message="Failed to save new project.")
 
-@projects_api_blueprint.route('/index', methods=['POST'])
+@projects_api_blueprint.route('/index', methods=['GET'])
 def index():
     auth_header = request.headers.get('Authorization')
 
     if auth_header:
         token = auth_header.split(" ")[1]
+    else:
+        return jsonify(status="failed", message="No authorization header found.")
+
+    user_id = decode_auth_token(token)
+    user = User.get(User.id == int(user_id))
+
+    projects = Project.select()
+
+    project_data = [{
+        "id": project.id,
+        "name": project.name,
+        "project_type": project.project_type,
+        "client_name": Client.get_by_id(project.client_id).name,
+        "date": str(project.date),
+        "currency": project.currency,
+        "total": str(project.total)} for project in projects]
+
+    if user:
+        return jsonify(project_data)
+    else:
+        return jsonify(status="failed", message="Authentication failed"
+
+
+
+#    name = pw.CharField()
+#    type = pw.CharField()
+#    client_id = pw.ForeignKeyField(Client, backref='projects')
+#    date = pw.DateField()
+#    currency = pw.CharField()
+#    total = pw.DecimalField(decimal_places=2)
