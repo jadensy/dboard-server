@@ -34,7 +34,7 @@ def create():
                         "project_type": project.project_type,
                         "client": client_data,
                         "date": str(project.date),
-                        "currency": project.currency,
+                        "currency": str(project.currency),
                         "total": project.total}
 
         return jsonify(status="success", message=f"Project added: {name}", project=project_data)
@@ -67,13 +67,57 @@ def index():
     if user:
         return jsonify(project_data)
     else:
-        return jsonify(status="failed", message="Authentication failed"
+        return jsonify(status="failed", message="Authentication failed")
 
+@projects_api_blueprint.route('/<project_id>/update', methods=['PUT'])
+def update(project_id):
+    auth_header = request.headers.get('Authorization')
 
+    if not auth_header:
+        return jsonify(status="failed", message="No authorization header found.")
+    else:
+        token = auth_header.split(" ")[1]
+        user_id = decode_auth_token(token)
+        user = User.get(User.id == int(user_id))
+        put_data = request.get_json()
 
-#    name = pw.CharField()
-#    type = pw.CharField()
-#    client_id = pw.ForeignKeyField(Client, backref='projects')
-#    date = pw.DateField()
-#    currency = pw.CharField()
-#    total = pw.DecimalField(decimal_places=2)
+        project = Project.get_by_id(project_id)
+
+        ## if key exists in JSON, then iterate (currently not working):
+        # for k, v in put_data.items():
+        #     project.k = v
+
+        project.name = put_data['name']
+        project.client_id = put_data['clientID']
+        project.type = put_data['projectType']
+        project.date = put_data['date']
+        project.currency = put_data['currency']
+        project.total = put_data['total']
+
+        if project.save():
+            return jsonify(status="success", message="Project details updated.")
+        else:
+            return jsonify(status="failed", message="Unable to update project details.")
+
+@projects_api_blueprint.route('/delete', methods=['POST'])
+def delete():
+    auth_header = request.headers.get('Authorization')
+
+    if not auth_header:
+        return jsonify(status="failed", message="No authorization header found.")
+    else:
+        token = auth_header.split(" ")[1]
+        user_id = decode_auth_token(token)
+        user = User.get(User.id == int(user_id))
+        if user:
+            post_data = request.get_json()
+            id = post_data['id']
+            project = Project.get_or_none(Project.id == id)
+            delete = Project.delete().where(Project.id == id)
+
+            if not project:
+                return jsonify(status="failed", message="Could not find project in database.")
+            elif delete.execute():
+                return jsonify(status="success", message="Project deleted.")
+            else:
+                return jsonify(status="failed", message="Unable to delete project.")

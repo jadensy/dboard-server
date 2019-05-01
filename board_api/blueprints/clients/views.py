@@ -47,6 +47,11 @@ def index():
     else:
         return jsonify(status="failed", message="Authentication failed")
 
+# @clients_api_blueprint.route('/<id>/projects', methods=['GET'])
+# def index_projects():
+#     pass
+    # return JSON : list all projects for specific client
+
 # [D] - Delete client from database
 @clients_api_blueprint.route('/delete', methods=['POST'])
 def delete_client():
