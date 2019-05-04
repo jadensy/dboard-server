@@ -69,6 +69,34 @@ def index():
     else:
         return jsonify(status="failed", message="Authentication failed.")
 
+@projects_api_blueprint.route('/<project_id>', methods=['GET'])
+def show(project_id):
+    auth_header = request.headers.get('Authorization')
+
+    if not auth_header:
+        return jsonify(status="failed", message="No authorization header found.")
+    else:
+        token = auth_header.split(" ")[1]
+        user_id = decode_auth_token(token)
+        user = User.get(User.id == int(user_id))
+
+        project = Project.get_by_id(project_id)
+
+        project_data = {
+            "id": project.id,
+            "name": project.name,
+            "project_type": project.project_type,
+            "client_id": str(project.client_id),
+            "client_name": Client.get_by_id(project.client_id).name,
+            "date": str(project.date),
+            "currency": project.currency,
+            "total": str(project.total)}
+
+        if user:
+            return jsonify(project_data)
+        else:
+            return jsonify(status="failed", message="Authentication failed.")
+
 @projects_api_blueprint.route('/<project_id>/update', methods=['PUT'])
 def update(project_id):
     auth_header = request.headers.get('Authorization')
@@ -89,7 +117,7 @@ def update(project_id):
 
         project.name = put_data['name']
         project.client_id = put_data['clientID']
-        project.type = put_data['projectType']
+        project.project_type = put_data['projectType']
         project.date = put_data['date']
         project.currency = put_data['currency']
         project.total = put_data['total']
