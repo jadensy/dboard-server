@@ -67,7 +67,7 @@ def index():
     if user:
         return jsonify(project_data)
     else:
-        return jsonify(status="failed", message="Authentication failed")
+        return jsonify(status="failed", message="Authentication failed.")
 
 @projects_api_blueprint.route('/<project_id>/update', methods=['PUT'])
 def update(project_id):

@@ -57,7 +57,7 @@ def update_user():
     put_data = request.get_json()
 
     if user:
-        if put_data['password']:
+        if "password" in put_data:
             user.password = generate_password_hash(put_data['password'])
 
         user.username = put_data['username']
