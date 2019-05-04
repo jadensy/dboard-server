@@ -127,8 +127,8 @@ def update(project_id):
         else:
             return jsonify(status="failed", message="Unable to update project details.")
 
-@projects_api_blueprint.route('/delete', methods=['POST'])
-def delete():
+@projects_api_blueprint.route('/<project_id>/delete', methods=['POST'])
+def delete(project_id):
     auth_header = request.headers.get('Authorization')
 
     if not auth_header:
@@ -138,10 +138,8 @@ def delete():
         user_id = decode_auth_token(token)
         user = User.get(User.id == int(user_id))
         if user:
-            post_data = request.get_json()
-            id = post_data['id']
-            project = Project.get_or_none(Project.id == id)
-            delete = Project.delete().where(Project.id == id)
+            project = Project.get_or_none(Project.id == project_id)
+            delete = Project.delete().where(Project.id == project_id)
 
             if not project:
                 return jsonify(status="failed", message="Could not find project in database.")
