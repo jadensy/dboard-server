@@ -31,7 +31,7 @@ def index():
 
         currencies = Project.select(Project.currency.distinct())
         pr_type_count = Project.select(Project.project_type.distinct())
-        countries = Client.select(Client.country.distinct()).count()
+        countries = Client.select(Client.country.distinct())
 
         for c in currencies:
             count = Project.select().where(Project.currency == c.currency).count()
